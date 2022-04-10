@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blogs | Social Ubiquity</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.prod.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <section class="section py-5">
+        <div class="container">
+          <div class="row" v-if="data.length != 0">
+            <div class="col-12 col-sm-12 col-md-12" v-for="post in data">
+              <a href="/" class="btn btn-primary">Back</a>
+              <h1 class="card-title">{{ post.title.rendered }}</h1>
+              <img
+                :src="post.image"
+                class="card-img-top"
+                :alt="post.title.rendered"
+              />
+              <div class="card-text py-2" v-html="post.content.rendered"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      Vue.createApp({
+        data() {
+          return {
+            data: [],
+          };
+        },
+        async mounted() {
+          const params = new URLSearchParams(window.location.search);
+          const slug = params.get("slug");
+          const postsResponse = await fetch(
+            `http://wp.socialubiquity.local/wp-json/wp/v2/posts?slug=${slug}`,
+          );
+          const post = await postsResponse.json();
+          this.data = await post;
+          this.data.forEach(async (post, index) => {
+            const resMedia = await fetch(
+              `http://wp.socialubiquity.local/wp-json/wp/v2/media/${post.featured_media}`,
+            );
+            const media = await resMedia.json();
+            this.data[index].image = await media.source_url;
+          });
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

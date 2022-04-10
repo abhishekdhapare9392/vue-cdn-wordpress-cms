@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blogs | Social Ubiquity</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.prod.js"></script>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-12 col-sm-12 col-md-12 text-center">
+            <h1>Blogs</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div id="app">
+      <section class="section py-5">
+        <div class="container">
+          <div class="row">
+            <div class="col-12 col-sm-12 col-md-4" v-for="post in data">
+              <div class="card">
+                <img :src="post.image" class="card-img-top" alt="..." />
+                <div class="card-body">
+                  <h2 class="card-title">{{ post.title.rendered }}</h2>
+                  <div class="card-text" v-html="post.excerpt.rendered"></div>
+                  <a
+                    :href="`/post.html?slug=${post.slug}`"
+                    class="btn btn-primary"
+                    >Read More</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      Vue.createApp({
+        data() {
+          return {
+            message: "Hello Vue!",
+            data: [],
+          };
+        },
+        async mounted() {
+          const postsResponse = await fetch(
+            "http://wp.socialubiquity.local/wp-json/wp/v2/posts",
+          );
+          const posts = await postsResponse.json();
+          this.data = await posts;
+          this.data.forEach(async (post, index) => {
+            const resMedia = await fetch(
+              `http://wp.socialubiquity.local/wp-json/wp/v2/media/${post.featured_media}`,
+            );
+            const media = await resMedia.json();
+            this.data[index].image = await media.source_url;
+          });
+          //   console.log(this.data);
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
