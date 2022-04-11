@@ -10,22 +10,37 @@
   </head>
   <body>
     <div id="app">
-      <section class="section py-5">
-        <div class="container">
-          <div class="row" v-if="data.length != 0">
-            <div class="col-12 col-sm-12 col-md-12" v-for="post in data">
-              <a href="/" class="btn btn-primary">Back</a>
-              <h1 class="card-title">{{ post.title.rendered }}</h1>
-              <img
-                :src="post.image"
-                class="card-img-top"
-                :alt="post.title.rendered"
-              />
-              <div class="card-text py-2" v-html="post.content.rendered"></div>
+      <div v-if="isLoading">
+        <div
+          class="d-flex flex-row justify-content-center align-items-center"
+          style="width: 100%; height: 100vh"
+        >
+          <h1 class="loadingText">
+            <i class="fa-solid fa-spinner"></i>Loading...
+          </h1>
+        </div>
+      </div>
+      <div v-if="!isLoading">
+        <section class="section py-5">
+          <div class="container">
+            <div class="row" v-if="data.length != 0">
+              <div class="col-12 col-sm-12 col-md-12" v-for="post in data">
+                <a href="/" class="btn btn-primary">Back</a>
+                <h1 class="card-title">{{ post.title.rendered }}</h1>
+                <img
+                  :src="post.image"
+                  class="card-img-top"
+                  :alt="post.title.rendered"
+                />
+                <div
+                  class="card-text py-2"
+                  v-html="post.content.rendered"
+                ></div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
 
     <script>
@@ -33,6 +48,7 @@
         data() {
           return {
             data: [],
+            isLoading: true,
           };
         },
         async mounted() {
@@ -49,6 +65,8 @@
             );
             const media = await resMedia.json();
             this.data[index].image = await media.source_url;
+
+            this.isLoading = false;
           });
         },
       }).mount("#app");

@@ -9,36 +9,48 @@
     <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.prod.js"></script>
   </head>
   <body>
-    <section class="section">
-      <div class="container">
-        <div class="row">
-          <div class="col-12 col-sm-12 col-md-12 text-center">
-            <h1>Blogs</h1>
-          </div>
+    <div id="app">
+      <div v-if="isLoading">
+        <div
+          class="d-flex flex-row justify-content-center align-items-center"
+          style="width: 100%; height: 100vh"
+        >
+          <h1 class="loadingText">
+            <i class="fa-solid fa-spinner"></i>Loading...
+          </h1>
         </div>
       </div>
-    </section>
-    <div id="app">
-      <section class="section py-5">
-        <div class="container">
-          <div class="row">
-            <div class="col-12 col-sm-12 col-md-4" v-for="post in data">
-              <div class="card">
-                <img :src="post.image" class="card-img-top" alt="..." />
-                <div class="card-body">
-                  <h2 class="card-title">{{ post.title.rendered }}</h2>
-                  <div class="card-text" v-html="post.excerpt.rendered"></div>
-                  <a
-                    :href="`/post.html?slug=${post.slug}`"
-                    class="btn btn-primary"
-                    >Read More</a
-                  >
+      <div v-if="isLoading === false">
+        <section class="section">
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-sm-12 col-md-12 text-center">
+                <h1>Blogs</h1>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="section py-5">
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-sm-12 col-md-4" v-for="post in data">
+                <div class="card">
+                  <img :src="post.image" class="card-img-top" alt="..." />
+                  <div class="card-body">
+                    <h2 class="card-title">{{ post.title.rendered }}</h2>
+                    <div class="card-text" v-html="post.excerpt.rendered"></div>
+                    <a
+                      :href="`/post.html?slug=${post.slug}`"
+                      class="btn btn-primary"
+                      >Read More</a
+                    >
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
 
     <script>
@@ -47,6 +59,7 @@
           return {
             message: "Hello Vue!",
             data: [],
+            isLoading: true,
           };
         },
         async mounted() {
@@ -61,6 +74,7 @@
             );
             const media = await resMedia.json();
             this.data[index].image = await media.source_url;
+            this.isLoading = false;
           });
           //   console.log(this.data);
         },
